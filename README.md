@@ -1,6 +1,6 @@
 # eztalk
 
-A new Flutter project.
+An app that helps people with language impairments communicate. 
 
 ## Getting Started
 
