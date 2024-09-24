@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 // import 'package:pops/utilities/design.dart';
 
 class MyBottomNavigationBar extends StatelessWidget {
@@ -20,36 +21,29 @@ class MyBottomNavigationBar extends StatelessWidget {
       showUnselectedLabels: false,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: ImageIcon(AssetImage('assets/bottom_icon/home.png')),
-          label: 'ViewProblem',
+          icon: Icon(Icons.home),
+          label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: ImageIcon(AssetImage('assets/bottom_icon/edit.png')),
-          label: 'add',
+          icon: Icon(Icons.addchart),
+          label: 'DataCollection',
         ),
         BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/bottom_icon/transactionminus.png'),
-            size: 35,
-          ),
-          label: 'Add',
+          icon: Icon(Icons.mic),
+          label: 'Record',
         ),
         BottomNavigationBarItem(
-          icon: ImageIcon(AssetImage('assets/bottom_icon/bell.png')),
+          icon: Icon(Icons.g_translate),
           label: 'notification',
         ),
         BottomNavigationBarItem(
-          icon: ImageIcon(AssetImage('assets/bottom_icon/asked.png')),
-          label: 'asked',
-        ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(AssetImage('assets/bottom_icon/user.png')),
-          label: 'user',
+          icon: Icon(Icons.settings),
+          label: 'Settings',
         ),
       ],
       currentIndex: currentIndex,
       selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.black54,
+      unselectedItemColor: const Color.fromARGB(82, 0, 0, 0),
       onTap: onTap,
     );
   }
