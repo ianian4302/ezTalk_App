@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 // use this class to define all the details of our design
 // for example, the color of the button, the color of the text, border radius, etc.
 class Design {
-  static const Color primaryColor = Color(0xFF4F809B);
-  static const Color secondaryColor = Color.fromARGB(255, 177, 193, 201);
-  static const Color backgroundColor = Color(0xFFD9D9D9);
+  static const Color primaryColor = Color.fromRGBO(43, 233, 177, 1);
+  static const Color secondaryColor = Color.fromRGBO(123, 127, 241,1);
+  static const Color backgroundColor = Color.fromRGBO(243, 254, 250, 1);
+  static const Color accentColor = Color.fromRGBO(165, 87, 237, 1);
   static const Color insideColor = Color(0xFFEFEFEF);
 
   static const Color primaryTextColor = Colors.black;
