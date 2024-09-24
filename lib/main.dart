@@ -11,12 +11,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Eztalk',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: '/',
-      onGenerateRoute: AppRouter.generateRoute,
+      routes: Routes.routes,
+      home: Routes.homeRoute!(context),
     );
   }
 }
