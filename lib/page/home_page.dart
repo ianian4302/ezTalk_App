@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/buttom_navigation_bar.dart';
+import '../utilities/design.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -8,23 +8,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
-    if (index == 1) {
-      Navigator.pushNamed(context, '/login');
-    }
-    // Add more navigation logic here if needed
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Page')),
+      appBar: AppBar(title: const Text('Home Page'), backgroundColor: Design.secondaryColor),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -42,10 +29,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: MyBottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
