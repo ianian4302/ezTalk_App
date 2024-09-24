@@ -1,6 +1,5 @@
 import 'package:eztalk/utilities/design.dart';
 import 'package:flutter/material.dart';
-import '../utilities/router.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
