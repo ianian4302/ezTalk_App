@@ -2,15 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../utilities/design.dart';
+import '../../utilities/design.dart';
 
-class RecordingPage extends StatefulWidget {
-  const RecordingPage({Key? key}) : super(key: key);
+class DataCollectionPage extends StatefulWidget {
+  const DataCollectionPage({Key? key}) : super(key: key);
   @override
-  State<RecordingPage> createState() => _RecordingPageState();
+  State<DataCollectionPage> createState() => _DataCollectionPageState();
 }
 
-class _RecordingPageState extends State<RecordingPage> with SingleTickerProviderStateMixin {
+class _DataCollectionPageState extends State<DataCollectionPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   bool _isRecording = false;
@@ -22,27 +22,30 @@ class _RecordingPageState extends State<RecordingPage> with SingleTickerProvider
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.index = 0; // 預設選中第一個頁面
+    _initRecorder();
   }
 
   Future<void> _initRecorder() async {
     final status = await Permission.microphone.request();
+    // 處理權限狀態
   }
 
   Future<void> _startRecording() async {
     setState(() {
       _isRecording = true;
     });
+    // 實現開始錄音的邏輯
   }
 
   Future<void> _stopRecording() async {
     setState(() {
       _isRecording = false;
     });
+    // 實現停止錄音的邏輯
   }
 
   Future<void> _submitRecording() async {
     if (_recordingPath != null && _nameController.text.isNotEmpty) {
-      // 顯示對話框
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -60,7 +63,6 @@ class _RecordingPageState extends State<RecordingPage> with SingleTickerProvider
           );
         },
       );
-      // Reset after submission
       setState(() {
         _recordingPath = null;
         _nameController.clear();
@@ -96,25 +98,25 @@ class _RecordingPageState extends State<RecordingPage> with SingleTickerProvider
           bottom: TabBar(
             controller: _tabController,
             tabs: const [
-              Tab(text: '整句串接'),
-              Tab(text: '歷史語句'),
-              Tab(text: '逐字稿撥放'),
+              Tab(text: '單句錄音'),
+              Tab(text: '整句錄音'),
+              Tab(text: '歷史錄音'),
             ],
           ),
         ),
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildRecordingPage(),
-            const Center(child: Text('歷史語句頁面')),
-            const Center(child: Text('逐字稿撥放頁面')),
+            _buildRecordingPage('單句'),
+            _buildRecordingPage('整句'),
+            _buildHistoryPage(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecordingPage() {
+  Widget _buildRecordingPage(String type) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -122,8 +124,8 @@ class _RecordingPageState extends State<RecordingPage> with SingleTickerProvider
         children: [
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: '錄音檔名稱',
+            decoration: InputDecoration(
+              labelText: '$type錄音檔名稱',
               border: OutlineInputBorder(),
             ),
           ),
@@ -157,4 +159,9 @@ class _RecordingPageState extends State<RecordingPage> with SingleTickerProvider
       ),
     );
   }
+
+  Widget _buildHistoryPage() {
+    return const Center(child: Text('歷史錄音頁面'));
+  }
 }
+

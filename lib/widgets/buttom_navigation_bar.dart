@@ -25,7 +25,7 @@ class MyBottomNavigationBar extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.addchart),
+          icon: Icon(Icons.g_translate),
           label: 'DataCollection',
         ),
         BottomNavigationBarItem(
@@ -33,8 +33,8 @@ class MyBottomNavigationBar extends StatelessWidget {
           label: 'Record',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.g_translate),
-          label: 'notification',
+          icon: Icon(Icons.addchart),
+          label: 'Translate',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.settings),
