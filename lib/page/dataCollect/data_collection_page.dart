@@ -10,7 +10,8 @@ class DataCollectionPage extends StatefulWidget {
   State<DataCollectionPage> createState() => _DataCollectionPageState();
 }
 
-class _DataCollectionPageState extends State<DataCollectionPage> with SingleTickerProviderStateMixin {
+class _DataCollectionPageState extends State<DataCollectionPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   bool _isRecording = false;
@@ -126,7 +127,7 @@ class _DataCollectionPageState extends State<DataCollectionPage> with SingleTick
             controller: _nameController,
             decoration: InputDecoration(
               labelText: '$type錄音檔名稱',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 20),
@@ -138,11 +139,13 @@ class _DataCollectionPageState extends State<DataCollectionPage> with SingleTick
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      onPressed: _recordingPath != null ? _submitRecording : null,
+                      onPressed:
+                          _recordingPath != null ? _submitRecording : null,
                       child: const Text('提交'),
                     ),
                     ElevatedButton(
-                      onPressed: _recordingPath != null ? _deleteRecording : null,
+                      onPressed:
+                          _recordingPath != null ? _deleteRecording : null,
                       child: const Text('刪除'),
                     ),
                   ],
@@ -164,4 +167,3 @@ class _DataCollectionPageState extends State<DataCollectionPage> with SingleTick
     return const Center(child: Text('歷史錄音頁面'));
   }
 }
-
