@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:eztalk/utilities/tts_player.dart';
 
 class SeriesConnectingPage extends StatefulWidget {
   const SeriesConnectingPage({Key? key}) : super(key: key);
@@ -13,9 +13,12 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
   late TabController _tabController;
 
   bool _isRecording = false;
-  String? _recordingPath;
-  final TextEditingController _nameController = TextEditingController();
   bool _isPlaying = false;
+  String? _recordingPath;
+  final TextEditingController _translationText = TextEditingController();
+
+  List<String> wordsleft = ['你好', '早安', '晚安', '謝謝', '請問', '可以', '不可以', '再見'];
+  List<String> wordsright = ['你好', '早安', '晚安', '謝謝', '請問', '可以', '不可以', '再見'];
 
   @override
   void initState() {
@@ -41,14 +44,14 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
   }
 
   Future<void> _submitRecording() async {
-    if (_recordingPath != null && _nameController.text.isNotEmpty) {
+    if (_recordingPath != null && _translationText.text.isNotEmpty) {
       // 顯示對話框
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('提交錄音'),
-            content: Text('錄音檔名稱: ${_nameController.text}'),
+            content: Text('錄音檔名稱: ${_translationText.text}'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -63,35 +66,27 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
       // Reset after submission
       setState(() {
         _recordingPath = null;
-        _nameController.clear();
-      });
-    }
-  }
-
-  void _deleteRecording() {
-    if (_recordingPath != null) {
-      File(_recordingPath!).deleteSync();
-      setState(() {
-        _recordingPath = null;
-        _nameController.clear();
+        _translationText.clear();
       });
     }
   }
 
   Future<void> _startPlaying() async {
     // 實現開始播放的邏輯
-    print('開始播放');
+    print(_translationText.text);
+    TtsPlayer.speak(_translationText.text);
   }
 
   Future<void> _stopPlaying() async {
     // 實現停止播放的邏輯
     print('停止播放');
+    TtsPlayer.stop();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _nameController.dispose();
+    _translationText.dispose();
     super.dispose();
   }
 
@@ -113,7 +108,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
                     setState(() {
-                      _nameController.clear();
+                      _translationText.clear();
                     });
                   },
                 ),
@@ -121,7 +116,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
               const SizedBox(width: 8), // 添加一些間距
               Expanded(
                 child: TextField(
-                  controller: _nameController,
+                  controller: _translationText,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
@@ -143,8 +138,8 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
                 child: IconButton(
                   icon: const Icon(Icons.send),
                   onPressed: () {
-                    if (_nameController.text.isNotEmpty) {
-                      print('提交: ${_nameController.text}');
+                    if (_translationText.text.isNotEmpty) {
+                      print('提交: ${_translationText.text}');
                     }
                   },
                 ),
@@ -169,7 +164,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
           Row(
             children: [
               Expanded(child: _buildRecordButton()),
-              const SizedBox(width: 16),  // 添加一些間距
+              const SizedBox(width: 16), // 添加一些間距
               Expanded(child: _buildPlayButton()),
             ],
           ),
@@ -179,10 +174,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
   }
 
   Widget _buildWordSelectionArea(bool isLeft) {
-    List<String> words = isLeft
-        ? ['你好', '早安', '晚安', '謝謝'] // 左側的字
-        : ['請問', '可以', '不可以', '再見']; // 右側的字
-
+    final words = isLeft ? wordsleft : wordsright;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -203,11 +195,11 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
                         onPressed: () {
                           setState(() {
                             if (isLeft) {
-                              _nameController.text =
-                                  word + _nameController.text;
+                              _translationText.text =
+                                  word + _translationText.text;
                             } else {
-                              _nameController.text =
-                                  _nameController.text + word;
+                              _translationText.text =
+                                  _translationText.text + word;
                             }
                           });
                         },
@@ -274,9 +266,14 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
             _isPlaying = !_isPlaying;
           });
           if (_isPlaying) {
-            _startPlaying();
+            TtsPlayer.speak(_translationText.text, onComplete: () {
+              setState(() {
+                _isPlaying = false;
+              });
+              print('playback completed');
+            });
           } else {
-            _stopPlaying();
+            TtsPlayer.stop();
           }
         },
       ),
