@@ -5,7 +5,7 @@ import 'package:eztalk/page/login_page.dart';
 import 'package:eztalk/page/home_page.dart';
 import 'package:eztalk/page/translate_page.dart';
 import 'package:eztalk/page/settings_page.dart';
-import 'package:eztalk/page/dataCollect/data_collection_page.dart';
+import 'package:eztalk/page/data_collection_page.dart';
 import 'package:eztalk/page/translate/series_connecting_page.dart';
 import 'package:eztalk/page/translate/lecture_playing_page.dart';
 
