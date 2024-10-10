@@ -2,8 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '/utilities/design.dart';
-
 class SeriesConnectingPage extends StatefulWidget {
   const SeriesConnectingPage({Key? key}) : super(key: key);
   @override
@@ -17,6 +15,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
   bool _isRecording = false;
   String? _recordingPath;
   final TextEditingController _nameController = TextEditingController();
+  bool _isPlaying = false;
 
   @override
   void initState() {
@@ -77,6 +76,16 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
         _nameController.clear();
       });
     }
+  }
+
+  Future<void> _startPlaying() async {
+    // 實現開始播放的邏輯
+    print('開始播放');
+  }
+
+  Future<void> _stopPlaying() async {
+    // 實現停止播放的邏輯
+    print('停止播放');
   }
 
   @override
@@ -157,7 +166,13 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
             ),
           ),
           const SizedBox(height: 20),
-          _buildRecordButton(),
+          Row(
+            children: [
+              Expanded(child: _buildRecordButton()),
+              const SizedBox(width: 16),  // 添加一些間距
+              Expanded(child: _buildPlayButton()),
+            ],
+          ),
         ],
       ),
     );
@@ -208,7 +223,6 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
 
   Widget _buildRecordButton() {
     return SizedBox(
-      width: double.infinity,
       height: 60,
       child: ElevatedButton.icon(
         icon: Icon(_isRecording ? Icons.stop : Icons.mic),
@@ -232,6 +246,37 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
             _startRecording();
           } else {
             _stopRecording();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildPlayButton() {
+    return SizedBox(
+      height: 60,
+      child: ElevatedButton.icon(
+        icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+        label: Text(_isPlaying ? '停止播放' : '開始播放'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: _isPlaying ? Colors.orange : Colors.green,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: _isPlaying ? Colors.orange : Colors.green,
+              width: 2,
+            ),
+          ),
+        ),
+        onPressed: () {
+          setState(() {
+            _isPlaying = !_isPlaying;
+          });
+          if (_isPlaying) {
+            _startPlaying();
+          } else {
+            _stopPlaying();
           }
         },
       ),

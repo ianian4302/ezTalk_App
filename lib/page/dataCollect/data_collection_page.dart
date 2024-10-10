@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../utilities/design.dart';
+import 'package:eztalk/utilities/design.dart';
 
 class DataCollectionPage extends StatefulWidget {
   const DataCollectionPage({Key? key}) : super(key: key);

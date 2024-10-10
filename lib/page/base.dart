@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../utilities/router.dart';
-import '../widgets/buttom_navigation_bar.dart';
+import 'package:eztalk/utilities/router.dart';
+import 'package:eztalk/widgets/buttom_navigation_bar.dart';
 
 class BaseMainPage extends StatefulWidget {
   const BaseMainPage({super.key});

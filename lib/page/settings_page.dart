@@ -1,12 +1,42 @@
 import 'package:flutter/material.dart';
-import '../utilities/router.dart';
-import '../utilities/design.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:eztalk/utilities/design.dart';
+import 'package:eztalk/utilities/settings.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
-  void _navigateToPage(BuildContext context, String route) {
-    Navigator.pushNamed(context, route);
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String _currentUser = '';
+  String _selectedVoice = Settings.voices.keys.first;
+  double _pitch = Settings.pitch;
+  double _rate = Settings.rate;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentUser = prefs.getString('currentUser') ?? '未登錄';
+      _selectedVoice = prefs.getString('selectedVoice') ?? Settings.voices.keys.first;
+      _pitch = prefs.getDouble('pitch') ?? Settings.pitch;
+      _rate = prefs.getDouble('rate') ?? Settings.rate;
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedVoice', _selectedVoice);
+    await prefs.setDouble('pitch', _pitch);
+    await prefs.setDouble('rate', _rate);
   }
 
   @override
@@ -15,25 +45,73 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(title: const Text('設定'), backgroundColor: Design.secondaryColor),
       body: ListView(
         children: [
-          _buildCategory(context, '分類一', [
-            _buildListItem(context, '選項 1-1', Routes.homePage),
-            _buildListItem(context, '選項 1-2', Routes.homePage),
+          _buildCategory(context, '帳號信息', [
+            ListTile(
+              title: Text('當前用戶: $_currentUser'),
+              trailing: ElevatedButton(
+                child: const Text('登出'),
+                onPressed: () {
+                  // 實現登出邏輯
+                },
+              ),
+            ),
           ]),
-          _buildCategory(context, '分類二', [
-            _buildListItem(context, '選項 2-1', Routes.homePage),
-            _buildListItem(context, '選項 2-2', Routes.homePage),
-          ]),
-          _buildCategory(context, '分類三', [
-            _buildListItem(context, '選項 3-1', Routes.homePage),
-            _buildListItem(context, '選項 3-2', Routes.homePage),
-          ]),
-          _buildCategory(context, '分類四', [
-            _buildListItem(context, '選項 4-1', Routes.homePage),
-            _buildListItem(context, '選項 4-2', Routes.homePage),
-          ]),
-          _buildCategory(context, '分類五', [
-            _buildListItem(context, '選項 5-1', Routes.homePage),
-            _buildListItem(context, '選項 5-2', Routes.homePage),
+          _buildCategory(context, '語音設置', [
+            ListTile(
+              title: const Text('選擇語音'),
+              trailing: DropdownButton<String>(
+                value: _selectedVoice,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedVoice = newValue;
+                    });
+                    _saveSettings();
+                  }
+                },
+                items: [
+                  for (var voice in Settings.voices.keys)
+                    DropdownMenuItem<String>(
+                      value: voice,
+                      child: Text(voice),
+                    ),
+                ],
+              ),
+            ),
+            ListTile(
+              title: Text('音調: ${_pitch.toStringAsFixed(2)}'),
+              subtitle: Slider(
+                value: _pitch,
+                min: 0.0,
+                max: 1.0,
+                divisions: 10,
+                onChanged: (double value) {
+                  setState(() {
+                    _pitch = value;
+                  });
+                },
+                onChangeEnd: (double value) {
+                  _saveSettings();
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('語速: ${_rate.toStringAsFixed(2)}'),
+              subtitle: Slider(
+                value: _rate,
+                min: 0.0,
+                max: 1.0,
+                divisions: 10,
+                onChanged: (double value) {
+                  setState(() {
+                    _rate = value;
+                  });
+                },
+                onChangeEnd: (double value) {
+                  _saveSettings();
+                },
+              ),
+            ),
           ]),
         ],
       ),
@@ -54,13 +132,6 @@ class SettingsPage extends StatelessWidget {
         const Divider(),
         ...items,
       ],
-    );
-  }
-
-  Widget _buildListItem(BuildContext context, String title, String route) {
-    return ListTile(
-      title: Text(title),
-      onTap: () => _navigateToPage(context, route),
     );
   }
 }

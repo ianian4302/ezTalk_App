@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'utilities/router.dart';
+import 'package:eztalk/utilities/router.dart';
 
 void main() {
   runApp(const MyApp());

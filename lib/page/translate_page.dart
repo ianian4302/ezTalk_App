@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-import '../utilities/design.dart';
-import 'translate/series_connecting_page.dart';
+import 'package:eztalk/utilities/design.dart';
+import 'package:eztalk/utilities/router.dart';
 
 class TranslatePage extends StatefulWidget {
   const TranslatePage({Key? key}) : super(key: key);
@@ -11,7 +9,8 @@ class TranslatePage extends StatefulWidget {
   State<TranslatePage> createState() => _TranslatePageState();
 }
 
-class _TranslatePageState extends State<TranslatePage> with SingleTickerProviderStateMixin {
+class _TranslatePageState extends State<TranslatePage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -47,9 +46,9 @@ class _TranslatePageState extends State<TranslatePage> with SingleTickerProvider
         body: TabBarView(
           controller: _tabController,
           children: [
-            SeriesConnectingPage(),
+            Routes.routes[Routes.seriesConnectingPage]!(context),
             const Center(child: Text('歷史語句頁面')),
-            const Center(child: Text('逐字稿撥放頁面')),
+            Routes.routes[Routes.lecturePlayingPage]!(context),
           ],
         ),
       ),

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../page/base.dart';
-import '../page/login_page.dart';
-import '../page/home_page.dart';
-import '../page/translate_page.dart';
-import '../page/settings_page.dart';
-import '../page/dataCollect/data_collection_page.dart';
-import '../page/translate/series_connecting_page.dart';
+import 'package:eztalk/page/base.dart';
+import 'package:eztalk/page/login_page.dart';
+import 'package:eztalk/page/home_page.dart';
+import 'package:eztalk/page/translate_page.dart';
+import 'package:eztalk/page/settings_page.dart';
+import 'package:eztalk/page/dataCollect/data_collection_page.dart';
+import 'package:eztalk/page/translate/series_connecting_page.dart';
+import 'package:eztalk/page/translate/lecture_playing_page.dart';
 
 class Routes {
   static const String baseMainPage = '/baseMainPage';
@@ -17,7 +18,10 @@ class Routes {
   static const String dataCollectionPage = '/dataCollectionPage';
 
   static const String tempRecording = '/tempRecording';
+
+  //translate about page
   static const String seriesConnectingPage = '/seriesConnectingPage';
+  static const String lecturePlayingPage = '/lecturePlayingPage';
 
 
   static const List<String> bottomNavigationRoutes = [
@@ -43,7 +47,9 @@ class Routes {
     settingsPage: (context) => const SettingsPage(),
     dataCollectionPage: (context) => const DataCollectionPage(),
 
+    //translate about page
     seriesConnectingPage: (context) => const SeriesConnectingPage(),
+    lecturePlayingPage: (context) => const LecturePlayingPage(),
   };
 }
 
