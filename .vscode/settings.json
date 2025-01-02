@@ -1,0 +1,4 @@
+{
+    "cmake.sourceDirectory": "C:/Users/iania/Desktop/code/ezTalk_App/linux",
+    "dart.flutterRunAdditionalArgs": [ "--no-enable-impeller" ] 
+}

@@ -26,16 +26,13 @@ class TtsPlayer {
   }
 
   static Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    String voice =
-        prefs.getString('selectedVoice') ?? Settings.voices.keys.first;
-    String locale = Settings.voices[voice] ?? "zh-TW";
-    double pitch = prefs.getDouble('pitch') ?? Settings.pitch;
-    double rate = prefs.getDouble('rate') ?? Settings.rate;
+    await Settings.loadSettings();
+    String locale = Settings.voices[Settings.currentVoice] ?? "zh-TW";
 
-    await _flutterTts!.setVoice({"name": voice, "locale": locale});
-    await _flutterTts!.setPitch(pitch);
-    await _flutterTts!.setSpeechRate(rate);
+    await _flutterTts!
+        .setVoice({"name": Settings.currentVoice, "locale": locale});
+    await _flutterTts!.setPitch(Settings.currentPitch);
+    await _flutterTts!.setSpeechRate(Settings.currentRate);
   }
 
   static Future<void> speak(String text,
@@ -50,8 +47,11 @@ class TtsPlayer {
     await tts.stop();
   }
 
-  static Future<void> updateSettings(
-      {String? voice, double? pitch, double? rate}) async {
+  static Future<void> updateSettings({
+    String? voice,
+    double? pitch,
+    double? rate,
+  }) async {
     final tts = await getFlutterTts();
     if (voice != null) {
       String locale = Settings.voices[voice] ?? "zh-TW";

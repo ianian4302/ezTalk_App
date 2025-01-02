@@ -12,9 +12,9 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   String _currentUser = '';
-  String _selectedVoice = Settings.voices.keys.first;
-  double _pitch = Settings.pitch;
-  double _rate = Settings.rate;
+  String _selectedVoice = Settings.currentVoice;
+  double _pitch = Settings.currentPitch;
+  double _rate = Settings.currentRate;
 
   @override
   void initState() {
@@ -23,63 +23,80 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _loadSettings() async {
+    await Settings.loadSettings();
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentUser = prefs.getString('currentUser') ?? '未登錄';
-      _selectedVoice = prefs.getString('selectedVoice') ?? Settings.voices.keys.first;
-      _pitch = prefs.getDouble('pitch') ?? Settings.pitch;
-      _rate = prefs.getDouble('rate') ?? Settings.rate;
+      _selectedVoice = Settings.currentVoice;
+      _pitch = Settings.currentPitch;
+      _rate = Settings.currentRate;
     });
   }
 
   Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedVoice', _selectedVoice);
-    await prefs.setDouble('pitch', _pitch);
-    await prefs.setDouble('rate', _rate);
+    await Settings.updateSettings(
+      voice: _selectedVoice,
+      pitch: _pitch,
+      rate: _rate,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('設定'), backgroundColor: Design.secondaryColor),
+      appBar: AppBar(
+          title: const Text('設定'), backgroundColor: Design.secondaryColor),
       body: ListView(
         children: [
           _buildCategory(context, '帳號信息', [
             ListTile(
               title: Text('當前用戶: $_currentUser'),
-              trailing: ElevatedButton(
-                child: const Text('登出'),
-                onPressed: () {
-                  // 實現登出邏輯
-                },
+              trailing: SizedBox(
+                width: 80,
+                child: ElevatedButton(
+                  child: const Text('登出'),
+                  onPressed: () {
+                    // 實現登出邏輯
+                  },
+                ),
               ),
             ),
           ]),
           _buildCategory(context, '語音設置', [
             ListTile(
               title: const Text('選擇語音'),
-              trailing: DropdownButton<String>(
-                value: _selectedVoice,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      _selectedVoice = newValue;
-                    });
-                    _saveSettings();
-                  }
-                },
-                items: [
-                  for (var voice in Settings.voices.keys)
-                    DropdownMenuItem<String>(
-                      value: voice,
-                      child: Text(voice),
-                    ),
-                ],
+              trailing: SizedBox(
+                width: 180,
+                child: DropdownButton<String>(
+                  value: _selectedVoice,
+                  isExpanded: true,
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedVoice = newValue;
+                      });
+                      _saveSettings();
+                    }
+                  },
+                  items: [
+                    for (var voice in Settings.voices.keys)
+                      DropdownMenuItem<String>(
+                        value: voice,
+                        child: Text(
+                          voice,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
             ListTile(
-              title: Text('音調: ${_pitch.toStringAsFixed(2)}'),
+              title: SizedBox(
+                width: 150,
+                child: Text('音調: ${_pitch.toStringAsFixed(2)}'),
+              ),
               subtitle: Slider(
                 value: _pitch,
                 min: 0.0,
@@ -96,7 +113,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
-              title: Text('語速: ${_rate.toStringAsFixed(2)}'),
+              title: SizedBox(
+                width: 150,
+                child: Text('語速: ${_rate.toStringAsFixed(2)}'),
+              ),
               subtitle: Slider(
                 value: _rate,
                 min: 0.0,
@@ -118,7 +138,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildCategory(BuildContext context, String title, List<Widget> items) {
+  Widget _buildCategory(
+      BuildContext context, String title, List<Widget> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -9,6 +9,10 @@ import 'package:eztalk/page/data_collection_page.dart';
 import 'package:eztalk/page/translate/series_connecting_page.dart';
 import 'package:eztalk/page/translate/lecture_playing_page.dart';
 
+import 'package:eztalk/page/testapi.dart';
+import 'package:eztalk/page/testtts.dart';
+import 'package:eztalk/page/test/record_test.dart';
+
 class Routes {
   static const String baseMainPage = '/baseMainPage';
   static const String homePage = '/home';
@@ -23,11 +27,14 @@ class Routes {
   static const String seriesConnectingPage = '/seriesConnectingPage';
   static const String lecturePlayingPage = '/lecturePlayingPage';
 
+  static const String testApi = '/testApi';
+  static const String testTts = '/testTts';
+  static const String testRecording = '/testRecording';
 
   static const List<String> bottomNavigationRoutes = [
     homePage,
     translatePage,
-    loginPage,
+    testApi,
     dataCollectionPage,
     settingsPage,
   ];
@@ -50,6 +57,10 @@ class Routes {
     //translate about page
     seriesConnectingPage: (context) => const SeriesConnectingPage(),
     lecturePlayingPage: (context) => const LecturePlayingPage(),
+
+    testApi: (context) => TestApiPage(),
+    testTts: (context) => TtsComponent(),
+    testRecording: (context) => const RecordTestPage(),
   };
 }
 

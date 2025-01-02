@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:eztalk/utilities/tts_player.dart';
+import 'package:eztalk/api/eztalk_api.dart';
 
 class SeriesConnectingPage extends StatefulWidget {
   const SeriesConnectingPage({Key? key}) : super(key: key);
@@ -12,13 +13,16 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  final EztalkApi api = EztalkApi();
+  Future<SeriesConnecting>? futureSeriesConnecting;
+
   bool _isRecording = false;
   bool _isPlaying = false;
   String? _recordingPath;
   final TextEditingController _translationText = TextEditingController();
 
-  List<String> wordsleft = ['你好', '早安', '晚安', '謝謝', '請問', '可以', '不可以', '再見'];
-  List<String> wordsright = ['你好', '早安', '晚安', '謝謝', '請問', '可以', '不可以', '再見'];
+  List<String> wordsleft = [];
+  List<String> wordsright = [];
 
   @override
   void initState() {
@@ -83,6 +87,18 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
     TtsPlayer.stop();
   }
 
+  Future<void> _fetchSeriesConnecting(String input) async {
+    try {
+      final result = await api.seriesConnectingGet(input);
+      setState(() {
+        wordsleft = result.frontWords;
+        wordsright = result.backWords;
+      });
+    } catch (e) {
+      print('Error fetching series connecting: $e');
+    }
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -140,6 +156,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
                   onPressed: () {
                     if (_translationText.text.isNotEmpty) {
                       print('提交: ${_translationText.text}');
+                      _fetchSeriesConnecting(_translationText.text);
                     }
                   },
                 ),
@@ -187,25 +204,32 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
               border: Border.all(color: Colors.grey),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: words
-                  .map((word) => ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            if (isLeft) {
-                              _translationText.text =
-                                  word + _translationText.text;
-                            } else {
-                              _translationText.text =
-                                  _translationText.text + word;
-                            }
-                          });
-                        },
-                        child: Text(word),
-                      ))
-                  .toList(),
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 4,
+                runSpacing: 4, // 添加一些垂直间距
+                children: words
+                    .map((word) => ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              if (isLeft) {
+                                _translationText.text =
+                                    word + _translationText.text;
+                              } else {
+                                _translationText.text =
+                                    _translationText.text + word;
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero, // 设置为矩形
+                            ),
+                          ),
+                          child: Text(word),
+                        ))
+                    .toList(),
+              ),
             ),
           ),
         ),
