@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "268678748232",
+    "project_id": "eztalk-app",
+    "storage_bucket": "eztalk-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268678748232:android:39ea00b590f1eb6c23a07d",
+        "android_client_info": {
+          "package_name": "com.example.eztalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268678748232-tj5asg1un108sih4soebo1pv6lmncfc3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzSxDbmVXn5g4o5hD09ChrpSPC9gsnHQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268678748232-tj5asg1un108sih4soebo1pv6lmncfc3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
