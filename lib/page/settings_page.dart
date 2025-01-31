@@ -1,7 +1,11 @@
+import 'package:eztalk/page/testtts.dart';
+import 'package:eztalk/utilities/tts_player.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:eztalk/utilities/design.dart';
 import 'package:eztalk/utilities/settings.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:eztalk/firebase/auth_gate.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -11,6 +15,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final User? user = FirebaseAuth.instance.currentUser;
   String _currentUser = '';
   String _selectedVoice = Settings.currentVoice;
   double _pitch = Settings.currentPitch;
@@ -24,9 +29,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSettings() async {
     await Settings.loadSettings();
-    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _currentUser = prefs.getString('currentUser') ?? '未登錄';
+      _currentUser = user!.displayName!;
       _selectedVoice = Settings.currentVoice;
       _pitch = Settings.currentPitch;
       _rate = Settings.currentRate;
@@ -41,6 +45,36 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const AuthGate()),
+    );
+  }
+
+  Future<void> _test() async {
+    TtsPlayer.getLanguage();
+  }
+
+  // Future<void> _showAvailableVoices() async {
+  //   final voices = await Settings.getVoices();
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       return ListView.builder(
+  //         itemCount: voices.length,
+  //         itemBuilder: (context, index) {
+  //           final voice = voices[index];
+  //           return ListTile(
+  //             title: Text(voice['name'] ?? 'Unknown'),
+  //             subtitle: Text(voice['locale'] ?? 'Unknown'),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,84 +88,93 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: SizedBox(
                 width: 80,
                 child: ElevatedButton(
+                  onPressed: _signOut,
                   child: const Text('登出'),
-                  onPressed: () {
-                    // 實現登出邏輯
-                  },
+                ),
+              ),
+            ),
+          ]),
+          _buildCategory(context, '測試', [
+            ListTile(
+              trailing: SizedBox(
+                width: 80,
+                child: ElevatedButton(
+                  onPressed: _test,
+                  child: const Text('test'),
                 ),
               ),
             ),
           ]),
           _buildCategory(context, '語音設置', [
-            ListTile(
-              title: const Text('選擇語音'),
-              trailing: SizedBox(
-                width: 180,
-                child: DropdownButton<String>(
-                  value: _selectedVoice,
-                  isExpanded: true,
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _selectedVoice = newValue;
-                      });
-                      _saveSettings();
-                    }
-                  },
-                  items: [
-                    for (var voice in Settings.voices.keys)
-                      DropdownMenuItem<String>(
-                        value: voice,
-                        child: Text(
-                          voice,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            ListTile(
-              title: SizedBox(
-                width: 150,
-                child: Text('音調: ${_pitch.toStringAsFixed(2)}'),
-              ),
-              subtitle: Slider(
-                value: _pitch,
-                min: 0.0,
-                max: 1.0,
-                divisions: 10,
-                onChanged: (double value) {
-                  setState(() {
-                    _pitch = value;
-                  });
-                },
-                onChangeEnd: (double value) {
-                  _saveSettings();
-                },
-              ),
-            ),
-            ListTile(
-              title: SizedBox(
-                width: 150,
-                child: Text('語速: ${_rate.toStringAsFixed(2)}'),
-              ),
-              subtitle: Slider(
-                value: _rate,
-                min: 0.0,
-                max: 1.0,
-                divisions: 10,
-                onChanged: (double value) {
-                  setState(() {
-                    _rate = value;
-                  });
-                },
-                onChangeEnd: (double value) {
-                  _saveSettings();
-                },
-              ),
-            ),
+            // ListTile(
+            //   title: const Text('選擇語音'),
+            //   trailing: SizedBox(
+            //     width: 180,
+            //     child: DropdownButton<String>(
+            //       value: _selectedVoice,
+            //       isExpanded: true,
+            //       onChanged: (String? newValue) {
+            //         if (newValue != null) {
+            //           setState(() {
+            //             _selectedVoice = newValue;
+            //           });
+            //           _saveSettings();
+            //         }
+            //       },
+            //       items: [
+            //         for (var voice in Settings.voices.keys)
+            //           DropdownMenuItem<String>(
+            //             value: voice,
+            //             child: Text(
+            //               voice,
+            //               overflow: TextOverflow.ellipsis,
+            //               maxLines: 1,
+            //             ),
+            //           ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // ListTile(
+            //   title: SizedBox(
+            //     width: 150,
+            //     child: Text('音調: ${_pitch.toStringAsFixed(2)}'),
+            //   ),
+            //   subtitle: Slider(
+            //     value: _pitch,
+            //     min: 0.0,
+            //     max: 1.0,
+            //     divisions: 10,
+            //     onChanged: (double value) {
+            //       setState(() {
+            //         _pitch = value;
+            //       });
+            //     },
+            //     onChangeEnd: (double value) {
+            //       _saveSettings();
+            //     },
+            //   ),
+            // ),
+            // ListTile(
+            //   title: SizedBox(
+            //     width: 150,
+            //     child: Text('語速: ${_rate.toStringAsFixed(2)}'),
+            //   ),
+            //   subtitle: Slider(
+            //     value: _rate,
+            //     min: 0.0,
+            //     max: 1.0,
+            //     divisions: 10,
+            //     onChanged: (double value) {
+            //       setState(() {
+            //         _rate = value;
+            //       });
+            //     },
+            //     onChangeEnd: (double value) {
+            //       _saveSettings();
+            //     },
+            //   ),
+            // ),
           ]),
         ],
       ),

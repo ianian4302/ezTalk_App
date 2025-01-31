@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:eztalk/utilities/tts_player.dart';
 import 'package:eztalk/api/eztalk_api.dart';
+import 'package:eztalk/widgets/records/play_button.dart';
+import 'package:eztalk/widgets/records/record_button.dart';
 
 class SeriesConnectingPage extends StatefulWidget {
   const SeriesConnectingPage({Key? key}) : super(key: key);
@@ -17,7 +19,6 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
   Future<SeriesConnecting>? futureSeriesConnecting;
 
   bool _isRecording = false;
-  bool _isPlaying = false;
   String? _recordingPath;
   final TextEditingController _translationText = TextEditingController();
 
@@ -180,9 +181,15 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: _buildRecordButton()),
+              Expanded(
+                child: RecordButton(
+                  isRecording: _isRecording,
+                  onStartRecording: _startRecording,
+                  onStopRecording: _stopRecording,
+                ),
+              ),
               const SizedBox(width: 16), // 添加一些間距
-              Expanded(child: _buildPlayButton()),
+              Expanded(child: PlayButton(translationText: _translationText)),
             ],
           ),
         ],
@@ -222,7 +229,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
+                            shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.zero, // 设置为矩形
                             ),
                           ),
@@ -234,73 +241,6 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildRecordButton() {
-    return SizedBox(
-      height: 60,
-      child: ElevatedButton.icon(
-        icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-        label: Text(_isRecording ? '停止錄音' : '開始錄音'),
-        style: ElevatedButton.styleFrom(
-          foregroundColor: _isRecording ? Colors.red : Colors.blue,
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: _isRecording ? Colors.red : Colors.blue,
-              width: 2,
-            ),
-          ),
-        ),
-        onPressed: () {
-          setState(() {
-            _isRecording = !_isRecording;
-          });
-          if (_isRecording) {
-            _startRecording();
-          } else {
-            _stopRecording();
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildPlayButton() {
-    return SizedBox(
-      height: 60,
-      child: ElevatedButton.icon(
-        icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
-        label: Text(_isPlaying ? '停止播放' : '開始播放'),
-        style: ElevatedButton.styleFrom(
-          foregroundColor: _isPlaying ? Colors.orange : Colors.green,
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: _isPlaying ? Colors.orange : Colors.green,
-              width: 2,
-            ),
-          ),
-        ),
-        onPressed: () {
-          setState(() {
-            _isPlaying = !_isPlaying;
-          });
-          if (_isPlaying) {
-            TtsPlayer.speak(_translationText.text, onComplete: () {
-              setState(() {
-                _isPlaying = false;
-              });
-              print('playback completed');
-            });
-          } else {
-            TtsPlayer.stop();
-          }
-        },
-      ),
     );
   }
 }

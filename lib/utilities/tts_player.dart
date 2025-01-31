@@ -1,5 +1,4 @@
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
 
 typedef CompletionCallback = void Function();
@@ -7,6 +6,17 @@ typedef CompletionCallback = void Function();
 class TtsPlayer {
   static FlutterTts? _flutterTts;
   static CompletionCallback? _completionCallback;
+
+  static Future<Map<String, String>> getLanguage() async {
+    final tts = FlutterTts();
+    final voices = await tts.getVoices;
+    Map<String, String> voicesMap = {};
+    // for (var voice in voices) {
+    //   print('Voice: ${voice['name']}, Locale: ${voice['locale']}');
+    //   voicesMap[voice['name']] = voice['locale'];
+    // }
+    return voicesMap;
+  }
 
   static Future<FlutterTts> getFlutterTts() async {
     if (_flutterTts == null) {
@@ -27,10 +37,9 @@ class TtsPlayer {
 
   static Future<void> _loadSettings() async {
     await Settings.loadSettings();
-    String locale = Settings.voices[Settings.currentVoice] ?? "zh-TW";
+    final voice = Settings.currentVoice;
 
-    await _flutterTts!
-        .setVoice({"name": Settings.currentVoice, "locale": locale});
+    await _flutterTts!.setVoice({"name": voice, "locale": "zh-TW"});
     await _flutterTts!.setPitch(Settings.currentPitch);
     await _flutterTts!.setSpeechRate(Settings.currentRate);
   }
@@ -54,8 +63,8 @@ class TtsPlayer {
   }) async {
     final tts = await getFlutterTts();
     if (voice != null) {
-      String locale = Settings.voices[voice] ?? "zh-TW";
-      await tts.setVoice({"name": voice, "locale": locale});
+      final voice = Settings.currentVoice;
+      await tts.setVoice({"name": voice, "locale": "zh-TW"});
     }
     if (pitch != null) {
       await tts.setPitch(pitch);

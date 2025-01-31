@@ -47,7 +47,7 @@ class _TranslatePageState extends State<TranslatePage>
           controller: _tabController,
           children: [
             Routes.routes[Routes.seriesConnectingPage]!(context),
-            const Center(child: Text('歷史語句頁面')),
+            Routes.routes[Routes.historySeriesPage]!(context),
             Routes.routes[Routes.lecturePlayingPage]!(context),
           ],
         ),

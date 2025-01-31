@@ -2,12 +2,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:eztalk/utilities/tts_player.dart';
 
 class Settings {
-  static const Map<String, String> voices = {
-    "Microsoft Zhiwei - Chinese (Traditional, Taiwan)": "zh-TW",
-    "Google UK English Female": "en-GB",
-    "Microsoft Yating - Chinese (Traditional, Taiwan)": "zh-TW",
-    "Google UK English Male": "en-GB",
-  };
+  // static const Map<String, String> voices = {
+  //   "Microsoft Zhiwei - Chinese (Traditional, Taiwan)": "zh-TW",
+  //   "Google UK English Female": "en-GB",
+  //   "Microsoft Yating - Chinese (Traditional, Taiwan)": "zh-TW",
+  //   "Google UK English Male": "en-GB",
+  // };
+  // static const Map<String, String> voices = TtsPlayer.getLanguage();
+  static Future<Map<String, String>> getVoices() async {
+    return await TtsPlayer.getLanguage();
+  }
 
   // 默認值
   static const double defaultPitch = 0.5;
