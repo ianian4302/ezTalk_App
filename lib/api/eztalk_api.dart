@@ -54,7 +54,7 @@ class EztalkApi {
 
   // 上傳音檔
   Future<void> uploadFile(String filePath, String username) async {
-    var url = Uri.parse('$baseUrl/upload');
+    var url = Uri.parse('$baseUrl/process_audio');
     var file = File(filePath);
 
     if (!file.existsSync()) {
@@ -72,6 +72,8 @@ class EztalkApi {
     } else {
       print('❌ 上傳失敗，錯誤碼: ${response.statusCode}');
     }
+    var responseData = await response.stream.bytesToString();
+    print('回傳數據: $responseData');
   }
 
   // 下載音檔
