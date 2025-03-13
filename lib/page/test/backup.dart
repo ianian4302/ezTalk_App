@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:record/record.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:eztalk/api/eztalk_api.dart';
-import 'package:eztalk/utilities/recorder.dart'; // Import the new Recorder class
 
 class RecordTestPage extends StatefulWidget {
   const RecordTestPage({Key? key}) : super(key: key);
@@ -11,8 +14,7 @@ class RecordTestPage extends StatefulWidget {
 }
 
 class _RecordTestPageState extends State<RecordTestPage> {
-  final Recorder recorder =
-      Recorder(); // Create an instance of the new Recorder class
+  final AudioRecorder audioRecorder = AudioRecorder();
   final AudioPlayer audioPlayer = AudioPlayer();
   final EztalkApi api = EztalkApi();
 
@@ -82,7 +84,7 @@ class _RecordTestPageState extends State<RecordTestPage> {
     return FloatingActionButton(
       onPressed: () async {
         if (isRecording) {
-          String? filepath = await recorder.stopRecording();
+          String? filepath = await audioRecorder.stop();
           if (filepath != null) {
             setState(() {
               isRecording = false;
@@ -91,8 +93,19 @@ class _RecordTestPageState extends State<RecordTestPage> {
             print('Recorded at $filepath');
           }
         } else {
-          String? filepath = await recorder.startRecording();
-          if (filepath != null) {
+          if (await audioRecorder.hasPermission()) {
+            final Directory appDoduleDirectory =
+                await getApplicationDocumentsDirectory();
+            final String filePath = path.join(
+              appDoduleDirectory.path,
+              'record_${DateTime.now().millisecondsSinceEpoch}.wav',
+            );
+            await audioRecorder.start(
+              const RecordConfig(
+                encoder: AudioEncoder.wav, // 指定编码器为 WAV
+              ),
+              path: filePath,
+            );
             setState(() {
               isRecording = true;
               recordingPath = null;

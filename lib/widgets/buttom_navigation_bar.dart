@@ -33,7 +33,7 @@ class MyBottomNavigationBar extends StatelessWidget {
           label: 'Record',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.addchart),
+          icon: Icon(Icons.storage),
           label: 'Translate',
         ),
         BottomNavigationBarItem(

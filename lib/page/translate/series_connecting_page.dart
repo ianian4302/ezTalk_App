@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:eztalk/utilities/tts_player.dart';
 import 'package:eztalk/api/eztalk_api.dart';
-import 'package:eztalk/widgets/records/play_button.dart';
-import 'package:eztalk/widgets/records/record_button.dart';
+import 'package:eztalk/utilities/recorder.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:eztalk/utilities/tts_player.dart';
 
 class SeriesConnectingPage extends StatefulWidget {
   const SeriesConnectingPage({Key? key}) : super(key: key);
@@ -11,15 +10,16 @@ class SeriesConnectingPage extends StatefulWidget {
   State<SeriesConnectingPage> createState() => _SeriesConnectingPageState();
 }
 
-class _SeriesConnectingPageState extends State<SeriesConnectingPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
+  bool _isPlaying = false;
+  final User? user = FirebaseAuth.instance.currentUser;
+  final Recorder recorder =
+      Recorder(); // Create an instance of the new Recorder class
   final EztalkApi api = EztalkApi();
-  Future<SeriesConnecting>? futureSeriesConnecting;
 
-  bool _isRecording = false;
-  String? _recordingPath;
+  String? recordingPath;
+  bool isRecording = false;
+
   final TextEditingController _translationText = TextEditingController();
 
   List<String> wordsleft = [];
@@ -28,64 +28,6 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.index = 0; // 預設選中第一個頁面
-  }
-
-  Future<void> _initRecorder() async {
-    final status = await Permission.microphone.request();
-  }
-
-  Future<void> _startRecording() async {
-    setState(() {
-      _isRecording = true;
-    });
-  }
-
-  Future<void> _stopRecording() async {
-    setState(() {
-      _isRecording = false;
-    });
-  }
-
-  Future<void> _submitRecording() async {
-    if (_recordingPath != null && _translationText.text.isNotEmpty) {
-      // 顯示對話框
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('提交錄音'),
-            content: Text('錄音檔名稱: ${_translationText.text}'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('確認'),
-              ),
-            ],
-          );
-        },
-      );
-      // Reset after submission
-      setState(() {
-        _recordingPath = null;
-        _translationText.clear();
-      });
-    }
-  }
-
-  Future<void> _startPlaying() async {
-    // 實現開始播放的邏輯
-    print(_translationText.text);
-    TtsPlayer.speak(_translationText.text);
-  }
-
-  Future<void> _stopPlaying() async {
-    // 實現停止播放的邏輯
-    print('停止播放');
-    TtsPlayer.stop();
   }
 
   Future<void> _fetchSeriesConnecting(String input) async {
@@ -102,7 +44,6 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _translationText.dispose();
     super.dispose();
   }
@@ -182,14 +123,12 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
           Row(
             children: [
               Expanded(
-                child: RecordButton(
-                  isRecording: _isRecording,
-                  onStartRecording: _startRecording,
-                  onStopRecording: _stopRecording,
-                ),
+                child: _recordingButton(),
               ),
-              const SizedBox(width: 16), // 添加一些間距
-              Expanded(child: PlayButton(translationText: _translationText)),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _buildPlayButton(),
+              ),
             ],
           ),
         ],
@@ -227,6 +166,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
                                     _translationText.text + word;
                               }
                             });
+                            _fetchSeriesConnecting(_translationText.text);
                           },
                           style: ElevatedButton.styleFrom(
                             shape: const RoundedRectangleBorder(
@@ -242,5 +182,81 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage>
         ),
       ],
     );
+  }
+
+  Widget _recordingButton() {
+    return FloatingActionButton(
+      onPressed: () async {
+        if (isRecording) {
+          String? filepath = await recorder.stopRecording();
+          if (filepath != null) {
+            setState(() {
+              isRecording = false;
+              recordingPath = filepath;
+            });
+            print('Recorded at $filepath');
+            if (recordingPath != null) {
+              var result = await api.uploadFile(
+                  recordingPath!, user?.displayName ?? 'NoName');
+              print('Upload result: $result');
+              _fetchSeriesConnecting(result);
+            }
+          }
+        } else {
+          String? filepath = await recorder.startRecording();
+          if (filepath != null) {
+            setState(() {
+              isRecording = true;
+              recordingPath = null;
+            });
+          }
+        }
+      },
+      child: Icon(isRecording ? Icons.stop : Icons.mic),
+    );
+  }
+
+  Widget _buildPlayButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 60,
+      child: ElevatedButton.icon(
+        icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+        label: Text(_isPlaying ? '停止播放' : '開始播放'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: _isPlaying ? Colors.orange : Colors.green,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: _isPlaying ? Colors.orange : Colors.green,
+              width: 2,
+            ),
+          ),
+        ),
+        onPressed: _togglePlay,
+      ),
+    );
+  }
+
+  void _togglePlay() async {
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
+    if (_isPlaying) {
+      TtsPlayer.speak(_translationText.text, onComplete: () {
+        setState(() {
+          _isPlaying = false;
+        });
+        print('playback completed');
+      });
+    } else {
+      TtsPlayer.stop();
+    }
+    final feedback_data = {
+      'sentence': _translationText.text,
+      'isPlaying': _isPlaying,
+    };
+    await api.confirmAudio(_translationText.text);
   }
 }

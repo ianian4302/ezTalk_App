@@ -52,14 +52,26 @@ class EztalkApi {
     }
   }
 
+  // 回傳確認語音辨識結果
+  Future<String> confirmAudio(String input) async {
+    final msg = jsonEncode({"original": input});
+    final response = await http.put(Uri.parse('$baseUrl/updates'), body: msg);
+    if (response.statusCode == 200) {
+      debugPrint(response.body);
+      return jsonDecode(response.body)['res'] as String;
+    } else {
+      throw Exception('Failed to load confirmAudio');
+    }
+  }
+
   // 上傳音檔
-  Future<void> uploadFile(String filePath, String username) async {
+  Future<String> uploadFile(String filePath, String username) async {
     var url = Uri.parse('$baseUrl/process_audio');
     var file = File(filePath);
 
     if (!file.existsSync()) {
       print('❌ 檔案不存在: $filePath');
-      return;
+      return '❌ 檔案不存在: $filePath';
     }
 
     var request = http.MultipartRequest('POST', url)
@@ -68,12 +80,14 @@ class EztalkApi {
 
     var response = await request.send();
     if (response.statusCode == 200) {
+      var responseBody = await http.Response.fromStream(response);
+      var jsonResponse = jsonDecode(responseBody.body);
       print('✅ 音檔上傳成功');
+      return jsonResponse['res'];
     } else {
       print('❌ 上傳失敗，錯誤碼: ${response.statusCode}');
+      return '❌ 上傳失敗，錯誤碼: ${response.statusCode}';
     }
-    var responseData = await response.stream.bytesToString();
-    print('回傳數據: $responseData');
   }
 
   // 下載音檔
