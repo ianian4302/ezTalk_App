@@ -180,10 +180,7 @@ class _DataCollectionPageState extends State<DataCollectionPage>
             });
             print('Recorded at $filepath');
             if (recordingPath != null) {
-              //  api
-              // var result = await api.uploadFile(
-              //     recordingPath!, user?.displayName ?? 'NoName');
-              // print('Upload result: $result');
+              //  TODO: 上傳錄音檔案的邏輯
             }
           }
         } else {

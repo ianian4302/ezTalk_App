@@ -46,6 +46,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
   }
 
   Future<void> _confirmConnecting(String input, String filename) async {
+    //  TODO: 確認連接
     try {
       final result =
           await api.feedback(user?.displayName ?? 'NoName', input, filename);
