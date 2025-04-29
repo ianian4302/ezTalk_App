@@ -28,6 +28,9 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
   @override
   void initState() {
     super.initState();
+    _translationText.addListener(() {
+      _fetchSeriesConnecting(_translationText.text);
+    });
   }
 
   Future<void> _fetchSeriesConnecting(String input) async {
@@ -42,8 +45,19 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
     }
   }
 
+  Future<void> _confirmConnecting(String input, String filename) async {
+    try {
+      final result =
+          await api.feedback(user?.displayName ?? 'NoName', input, filename);
+      print('Feedback result: $result');
+    } catch (e) {
+      print('Error fetching series connecting: $e');
+    }
+  }
+
   @override
   void dispose() {
+    _translationText.removeListener(() {});
     _translationText.dispose();
     super.dispose();
   }
@@ -97,8 +111,12 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
                   icon: const Icon(Icons.send),
                   onPressed: () {
                     if (_translationText.text.isNotEmpty) {
-                      print('提交: ${_translationText.text}');
-                      _fetchSeriesConnecting(_translationText.text);
+                      print('confirm: ${_translationText.text}');
+                      _confirmConnecting(
+                          _translationText.text, recordingPath ?? 'NoName');
+                      setState(() {
+                        _translationText.clear();
+                      });
                     }
                   },
                 ),
@@ -166,12 +184,11 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
                                     _translationText.text + word;
                               }
                             });
-                            _fetchSeriesConnecting(_translationText.text);
+                            // _fetchSeriesConnecting(_translationText.text);
                           },
                           style: ElevatedButton.styleFrom(
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero, // 设置为矩形
-                            ),
+                                borderRadius: BorderRadius.zero),
                           ),
                           child: Text(word),
                         ))
@@ -199,6 +216,7 @@ class _SeriesConnectingPageState extends State<SeriesConnectingPage> {
               var result = await api.uploadFile(
                   recordingPath!, user?.displayName ?? 'NoName');
               print('Upload result: $result');
+              _translationText.text = result;
               _fetchSeriesConnecting(result);
             }
           }
