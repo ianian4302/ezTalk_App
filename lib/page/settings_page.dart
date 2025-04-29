@@ -1,7 +1,5 @@
-import 'package:eztalk/page/testtts.dart';
 import 'package:eztalk/utilities/tts_player.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:eztalk/utilities/design.dart';
 import 'package:eztalk/utilities/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
