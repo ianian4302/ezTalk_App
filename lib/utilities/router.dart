@@ -10,8 +10,8 @@ import 'package:eztalk/page/translate/series_connecting_page.dart';
 import 'package:eztalk/page/translate/lecture_playing_page.dart';
 import 'package:eztalk/page/translate/history_series_page.dart';
 
-import 'package:eztalk/page/testapi.dart';
-import 'package:eztalk/page/testtts.dart';
+import 'package:eztalk/page/test/testapi.dart';
+import 'package:eztalk/page/test/testtts.dart';
 import 'package:eztalk/page/test/record_test.dart';
 
 class Routes {
