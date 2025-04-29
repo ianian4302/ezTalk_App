@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+import 'package:eztalk/utilities/recorder.dart';
 import 'package:eztalk/utilities/design.dart';
 
 class DataCollectionPage extends StatefulWidget {
@@ -12,73 +10,42 @@ class DataCollectionPage extends StatefulWidget {
 
 class _DataCollectionPageState extends State<DataCollectionPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  bool _isRecording = false;
-  String? _recordingPath;
+  bool isRecording = false;
+  final Recorder recorder = Recorder();
+  String? recordingPath;
   final TextEditingController _nameController = TextEditingController();
+  late TabController _tabController;
+  TextEditingController selectedWordController =
+      TextEditingController(); // 用於存儲選中的單詞
+  List<String> words = [
+    "tmp",
+    "一個人的確是很重要",
+    "一場比賽中第一名",
+    "一次我的人生",
+    "七月份資料",
+    "下雨的時候要穿雨衣",
+    "不到一個人生就可以",
+    "不如意事",
+    "不小心用打火機造成意外",
+    "不少朋友們",
+    "不需要太多的時間",
+    "今天的天氣真是太好了",
+    "學習新技能是一件很有趣的事情",
+    "下班後我們一起去吃飯吧",
+    "這本書的內容非常有啟發性",
+    "旅行能讓人放鬆心情，增廣見聞",
+    "成功需要不斷的努力和堅持",
+    "音樂是生活中不可或缺的一部分",
+    "每一天都是一個新的開始",
+    "團隊合作是完成大項目的關鍵",
+    "保持健康是最重要的事情之一",
+  ];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.index = 0; // 預設選中第一個頁面
-    _initRecorder();
-  }
-
-  Future<void> _initRecorder() async {
-    final status = await Permission.microphone.request();
-    // 處理權限狀態
-  }
-
-  Future<void> _startRecording() async {
-    setState(() {
-      _isRecording = true;
-    });
-    // 實現開始錄音的邏輯
-  }
-
-  Future<void> _stopRecording() async {
-    setState(() {
-      _isRecording = false;
-    });
-    // 實現停止錄音的邏輯
-  }
-
-  Future<void> _submitRecording() async {
-    if (_recordingPath != null && _nameController.text.isNotEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('提交錄音'),
-            content: Text('錄音檔名稱: ${_nameController.text}'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('確認'),
-              ),
-            ],
-          );
-        },
-      );
-      setState(() {
-        _recordingPath = null;
-        _nameController.clear();
-      });
-    }
-  }
-
-  void _deleteRecording() {
-    if (_recordingPath != null) {
-      File(_recordingPath!).deleteSync();
-      setState(() {
-        _recordingPath = null;
-        _nameController.clear();
-      });
-    }
   }
 
   @override
@@ -105,14 +72,41 @@ class _DataCollectionPageState extends State<DataCollectionPage>
             ],
           ),
         ),
-        body: TabBarView(
-          controller: _tabController,
+        body: Stack(
           children: [
-            _buildRecordingPage('單句'),
-            _buildRecordingPage('整句'),
-            _buildHistoryPage(),
+            TabBarView(
+              controller: _tabController,
+              children: [
+                _buildSingleRecordingPage('單句'),
+                _buildRecordingPage('整句'),
+                _buildHistoryPage(),
+              ],
+            ),
+            Positioned(
+              bottom: 16.0,
+              right: 16.0,
+              child: _recordingButton(),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSingleRecordingPage(String type) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: '$type錄音檔名稱',
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -130,40 +124,79 @@ class _DataCollectionPageState extends State<DataCollectionPage>
               border: const OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed:
-                          _recordingPath != null ? _submitRecording : null,
-                      child: const Text('提交'),
-                    ),
-                    ElevatedButton(
-                      onPressed:
-                          _recordingPath != null ? _deleteRecording : null,
-                      child: const Text('刪除'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _isRecording ? _stopRecording : _startRecording,
-                  child: Text(_isRecording ? '停止錄音' : '開始錄音'),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildHistoryPage() {
-    return const Center(child: Text('歷史錄音頁面'));
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: selectedWordController,
+            decoration: const InputDecoration(
+              labelText: '選擇語句',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(4.0),
+            itemCount: words.length,
+            itemBuilder: (context, index) {
+              return ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedWordController.text = words[index];
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                ),
+                child: Text(words[index]),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 80), // 預留空間放錄音按鈕
+      ],
+    );
+  }
+
+  Widget _recordingButton() {
+    return FloatingActionButton(
+      onPressed: () async {
+        if (isRecording) {
+          String? filepath = await recorder.stopRecording();
+          if (filepath != null) {
+            setState(() {
+              isRecording = false;
+              recordingPath = filepath;
+            });
+            print('Recorded at $filepath');
+            if (recordingPath != null) {
+              //  api
+              // var result = await api.uploadFile(
+              //     recordingPath!, user?.displayName ?? 'NoName');
+              // print('Upload result: $result');
+            }
+          }
+        } else {
+          String? filepath = await recorder.startRecording();
+          if (filepath != null) {
+            setState(() {
+              isRecording = true;
+              recordingPath = null;
+            });
+          }
+        }
+      },
+      child: Icon(isRecording ? Icons.stop : Icons.mic),
+    );
   }
 }
