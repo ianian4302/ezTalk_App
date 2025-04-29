@@ -90,6 +90,32 @@ class EztalkApi {
     }
   }
 
+  // 上傳音檔 transfer
+  Future<String> transfer(String filePath, String username) async {
+    var url = Uri.parse('$baseUrl/transfer');
+    var file = File(filePath);
+
+    if (!file.existsSync()) {
+      print('❌ 檔案不存在: $filePath');
+      return '❌ 檔案不存在: $filePath';
+    }
+
+    var request = http.MultipartRequest('POST', url)
+      ..fields['login_user'] = username
+      ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      var responseBody = await http.Response.fromStream(response);
+      var jsonResponse = jsonDecode(responseBody.body);
+      print('✅ 音檔上傳成功');
+      return jsonResponse['res'];
+    } else {
+      print('❌ 上傳失敗，錯誤碼: ${response.statusCode}');
+      return '❌ 上傳失敗，錯誤碼: ${response.statusCode}';
+    }
+  }
+
   // 下載音檔
   Future<String?> downloadFile(String filename) async {
     var url = Uri.parse('$baseUrl/download/$filename');
@@ -128,6 +154,49 @@ class EztalkApi {
       return null;
     }
   }
+
+  // 確認整句串接/歷史句子
+  Future<String?> feedback(
+      String username, String correctWord, String filename) async {
+    var url = Uri.parse('$baseUrl/feedback');
+    String baseFileName = path.basename(filename);
+    var request = http.MultipartRequest('POST', url)
+      ..fields['login_user'] = username
+      ..fields['correct'] = correctWord
+      ..fields['filename'] = baseFileName;
+    print('上傳的檔案名稱: $baseFileName');
+    print('上傳的正確字: $correctWord');
+    print('上傳的使用者名稱: $username');
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      var responseBody = await http.Response.fromStream(response);
+      var jsonResponse = jsonDecode(responseBody.body);
+      print('✅ 確認整句串接成功');
+      return jsonResponse['res'] as String?;
+    } else {
+      print('❌ 確認整句串接失敗，錯誤碼: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  // 歷史句子查詢
+  Future<String?> checkHsitory(String username) async {
+    var url = Uri.parse('$baseUrl/check_history');
+    var request = http.MultipartRequest('POST', url)
+      ..fields['account'] = username;
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      var responseBody = await http.Response.fromStream(response);
+      var jsonResponse = jsonDecode(responseBody.body);
+      print('✅ 歷史句子查詢成功');
+      return jsonResponse['res'] as String?;
+    } else {
+      print('❌ 歷史句子查詢失敗，錯誤碼: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  //  TODO:資料蒐集的API串接
 
   Future<void> eztalkApiTest() async {
     final response = await http.get(
